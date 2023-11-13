@@ -1,4 +1,4 @@
-import grammar_dictionary
+from grammar_dictionary import find_in_dict, check_grammar
 
 
 def main():
@@ -14,10 +14,13 @@ def main():
 
     # find if tokens exist in predefined lists for the grammar, keeping location of
     # each word in the string to form phrases
-    tree.update(grammar_dictionary.find_in_dict(tokens, tree))
+    tree.update(find_in_dict(tokens, tree))
 
-    print(tree)
-
+    # check and see if the sentence violates our grammar
+    if not check_grammar(tree):
+        print("Your input is not a valid sentence.")
+    else:
+        print("Your input passes!")
 
 if __name__ == '__main__':
     main()

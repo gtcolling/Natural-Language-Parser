@@ -21,3 +21,18 @@ def find_in_dict(tokens, dictionary):
                     dictionary[key].append({string: i})
         i += 1
     return dictionary
+
+
+def check_grammar(dictionary):
+    subject = False
+    verb = False
+    for key in dictionary.keys():
+        if key == "sub":
+            subject = True
+        elif key == "verb":
+            verb = True
+
+    if subject and verb:
+        return True
+    else:
+        return False
