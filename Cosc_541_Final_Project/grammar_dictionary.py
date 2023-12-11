@@ -32,6 +32,9 @@ def find_in_dict(tokens, dictionary):
 def check_grammar(dictionary):
     subject_bool = False
     verb_bool = False
+    noun_bool = True
+    prep_bool = True
+    art_bool = True
     sub = list()
     advp = list()
     verb = list()
@@ -42,10 +45,10 @@ def check_grammar(dictionary):
 
     for key, value in dictionary.items():
 
-        # If "I" or "We" is the beginning of the sentence, set subject_bool to true.
+        # If "I" or "We" is the beginning of the sentence, and there is only one subject, set subject_bool to true.
         rng = range(len(dictionary[key]))
         if key == "sub":
-            if dictionary[key][0][1] == 0:
+            if dictionary[key][0][1] == 0 and len(dictionary[key]) == 1:
                 sub.append(dictionary[key][0][0])
                 subject_bool = True
             else:
@@ -60,19 +63,27 @@ def check_grammar(dictionary):
 
         # If verb comes after the subject, set verb_bool to true.
         elif key == "verb":
-            if dictionary[key][0][1] > 0:
+            if dictionary[key][0][1] > 0 and len(dictionary[key]) == 1:
                 verb.append(dictionary[key][0][0])
                 verb_bool = True
             else:
-                print("Verb must come after the subject of your sentence.")
+                print("Verb must come after the subject of your sentence, and only one verb is allowed.")
 
         # Load the prep list with the preposition
         elif key == "prep":
-            prep.append(dictionary[key][0][0])
+            if len(dictionary[key]) == 1:
+                prep.append(dictionary[key][0][0])
+            else:
+                prep_bool = False
+                print("Only one preposition is allowed in your sentence.")
 
         # Load the art list with an article
         elif key == "art":
-            art.append(dictionary[key][0][0])
+            if len(dictionary[key]) == 1:
+                art.append(dictionary[key][0][0])
+            else:
+                art_bool = False
+                print("Only one article is allowed in your sentence.")
 
         # Create an adjective phrase (as many adjectives in a row as provided by the user).
         elif key == "adj":
@@ -83,9 +94,13 @@ def check_grammar(dictionary):
 
         # Create a noun phrase using the article, adjective phrase, and noun
         elif key == "noun":
-            np.append(' '.join(str(e) for e in art))
-            np.append(' '.join(str(e) for e in adjp))
-            np.append(str(dictionary[key][0][0]))
+            if len(dictionary[key]) == 1:
+                np.append(' '.join(str(e) for e in art))
+                np.append(' '.join(str(e) for e in adjp))
+                np.append(str(dictionary[key][0][0]))
+            else:
+                noun_bool = False
+                print("Only one noun is allowed in your sentence.")
 
         # If there is a word in the input that isn't in the parser, the sentence is invalid.
         elif key == "not_found":
@@ -93,8 +108,9 @@ def check_grammar(dictionary):
             return False
 
     # Since subject and verb are the only non-nullable aspects of the grammar,
-    # they must be present for a passing sentence.
-    if subject_bool and verb_bool:
+    # they must be present for a passing sentence. Also, only one subject, verb, article,
+    # preposition, and noun are allowed.
+    if subject_bool and verb_bool and prep_bool and art_bool and noun_bool:
         print("Your sentence has been broken down as follows: " +
               "Subject: " + ' '.join(str(e) for e in sub) + ", " +
               ("Adverb Phrase: " + ' '.join(str(e) for e in advp) + ", " if len(advp) > 0 else "") +
@@ -103,6 +119,6 @@ def check_grammar(dictionary):
               ("Noun Phrase: " + ' '.join(str(e) for e in np) + "\n" if len(np) > 0 else "\n"))
         return True
 
-    # If subject and verb are not present, the sentence automatically fails.
+    # If subject and verb are not present, or are incorrectly placed the sentence automatically fails.
     else:
         return False
